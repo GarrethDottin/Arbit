@@ -1,8 +1,5 @@
-//check the values of the selling price
-//change to int
-//Fill in the form if a certain criterium is met
-//Reload the page
-//PsuedoCode the
+//Check the values of a field
+//Update the value of that field
 
 var casper = require('casper').create();
 casper.start('https://btc-e.com/exchange/ltc_btc');
@@ -22,7 +19,7 @@ casper.then(function() {
 
   this.echo("To buy ltc the price is " + currentBuyingPrice);
   this.echo("The LTC volume at that price " + currentLtcVol)
-  this.echo("The BTC volume at that price  " + currentBTCVol )
+  this.echo("The BTC volume at that price " + currentBTCVol )
 
 });
 casper.then(function() {
@@ -48,16 +45,18 @@ casper.then(function() {
 //Buy LTC
 casper.then(function() {
   var ltcAmount = this.evaluate(function() {
-    return document.querySelector('#b_bt').textContent;
+    return document.querySelector('#b_bt');
   });
-
-  this.evaluate(function() {
-     document.querySelector('#b_btc').textContent = '5';
-  });
-
+  ltcAmount.textContent = 5
+  // this.evaluate(function() {
+  //    document.querySelector('#b_btc').textContent = '5';
+  // });
 
   this.echo("value is " + this.evaluate(function() {
     return document.querySelector('#b_btc').textContent}));
+
+  this.echo("the value is "   + ltcAmount.textContent)
+
 
 
   // var pricPerLTC = this.evaluate(function() {
