@@ -22,7 +22,10 @@ var domMunipulations = {
     return $('.table:first-child .order:nth-child(2) td:first-child')[0].innerHTML;
   },
   setAmount: function(amount) {
-    return $('.tabla2 tr td:nth-child(2) #b_btc').val(amount)
+    return $('.tabla2 tr td:nth-child(2) #b_btc').val(amount);
+  },
+  clickCalculate: function() {
+    return $('a.button:first-child')[0];
   }
 }
 
@@ -76,9 +79,11 @@ casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
 
 // Function to buy
 casper.buyLTC = function () {
-  // fill in the form
-  var amountLtc = this.evaluate(setAmount(amount))
-  // lastBuyPrice = getPrice();
+  //Need a function to set amount to buy
+  var amountLtc = this.evaluate(domMunipulations.setAmount(5))
+  var clickCalculate = this.evaluate(domMunipulations.clickCalculate)
+  this.click(clickCalculate)
+
 };
 
 // Function to sell
