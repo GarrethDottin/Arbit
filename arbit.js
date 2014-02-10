@@ -20,6 +20,9 @@ var customizedVariables = {
 var domMunipulations = {
   getValue: function () {
     return $('.table:first-child .order:nth-child(2) td:first-child')[0].innerHTML;
+  },
+  setAmount: function(amount) {
+    return $('.tabla2 tr td:nth-child(2) #b_btc').val(amount)
   }
 }
 
@@ -74,7 +77,7 @@ casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
 // Function to buy
 casper.buyLTC = function () {
   // fill in the form
-  this.echo('would be buying LTC at this point');
+  var amountLtc = this.evaluate(setAmount(amount))
   // lastBuyPrice = getPrice();
 };
 
