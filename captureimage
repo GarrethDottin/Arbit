@@ -1,0 +1,7 @@
+
+var casper = require('casper').create();
+casper.start('https://btc-e.com/exchange/ltc_btc/', function() {
+    this.captureSelector('btc.png', '#content');
+});
+
+casper.run();
