@@ -18,14 +18,17 @@ var customizedVariables = {
 }
 
 var domMunipulations = {
-  getValue: function () {
+  getLTCValue: function () {
     return $('.table:first-child .order:nth-child(2) td:first-child')[0].innerHTML;
   },
   setAmount: function(amount) {
     return $('.tabla2 tr td:nth-child(2) #b_btc').val(amount);
   },
-  clickCalculate: function() {
+  clickCalculateButton: function() {
     return $('a.button:first-child')[0];
+  },
+  clickBuyButton: function () {
+    return $('a.button')[1];
   }
 }
 
@@ -42,13 +45,12 @@ casper.then(function (currentTime) {
 // functions to grab value
 casper.grabLTCValue = function (Highpoint) {
   this.wait(1000, function (Highpoint) {
-    var ltc = this.evaluate(domMunipulations.getValue);
+    var ltc = this.evaluate(domMunipulations.getLTCValue);
     this.echo('this is hit');
     this.echo(ltc);
     var ltcPrice = 0;
     this.checkLTCHighpoint(ltcPrice);
   });
-
   return true;
 };
 
@@ -82,10 +84,12 @@ casper.buyLTC = function () {
   //Need a function to set amount to buy
   var amountLtc = this.evaluate(domMunipulations.setAmount(5))
   var clickCalculate = this.evaluate(domMunipulations.clickCalculate)
+  var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
   this.click(clickCalculate)
-
+  this.wait(500, function (clickBuyButton) {
+    this.click(clickBuyButton)
+  });
 };
-
 // Function to sell
 casper.sellLTC = function () {
   // fill out form currentTime
