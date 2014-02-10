@@ -1,3 +1,10 @@
+<<<<<<< Updated upstream
+//Check the values of a field
+//Update the value of that field
+=======
+
+>>>>>>> Stashed changes
+
 var casper = require('casper').create();
 casper.start('https://btc-e.com/exchange/ltc_btc');
 
@@ -44,6 +51,10 @@ casper.then(function() {
   var ltcAmount = this.evaluate(function() {
     return document.querySelector('#b_bt');
   });
+  ltcAmount.textContent = 5
+  // this.evaluate(function() {
+  //    document.querySelector('#b_btc').textContent = '5';
+  // });
 
   this.echo("value is " + this.evaluate(function() {
     return document.querySelector('#b_btc').textContent}));
