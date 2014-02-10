@@ -83,11 +83,10 @@ casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
 casper.buyLTC = function () {
 
   //This evalaute only working sometimes in the current state
-  //evaluate needs to be set to a variable
+  //Evaluate needs to be set to a variable
   //Try doing the calculate button without the 0
+  //Trydoing the calculate button with this.click and a selector instead of a function
   // also use a wait for
-
-  //Need a function to set amount to buy
   var amountLtc = this.evaluate(domMunipulations.setAmount)
   this.capture('attempt1.png', {
         top: 100,
@@ -95,10 +94,8 @@ casper.buyLTC = function () {
         width: 500,
         height: 1000
     });
-
   links = this.evaluate(function() {
     return ("this part is working")
-
     // this.click($('a:contains("Buy LTC")')[0])
     // this.capture('attempt2.png', {
     //     top: 100,
@@ -107,7 +104,6 @@ casper.buyLTC = function () {
     //     height: 400
     // });
   })
-
   this.echo(links)
   // var clickCalculate = this.evaluate(domMunipulations.clickCalculateButton)
   // var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
@@ -116,6 +112,9 @@ casper.buyLTC = function () {
   //     this.click(clickBuyButton)
   // // });
 };
+
+
+
 // Function to sell
 casper.sellLTC = function () {
   // fill out form currentTime
@@ -123,3 +122,17 @@ casper.sellLTC = function () {
 };
 
 casper.run();
+
+
+//Flow of Application
+//Specify Casperjs details
+//Start application
+//check price
+// check whether to buy or sell
+//Check if its a highpoint
+// Check whether its smart to buy
+// Fill in Form to buy
+//Check whether its smart to sell
+// Fill in Form to sell
+//Issues:
+//Cannot Fill out form to buy
