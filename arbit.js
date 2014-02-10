@@ -33,28 +33,17 @@ casper.then(function (currentTime) {
   }
 });
 
-
 // functions to grab value
 casper.grabLTCValue = function (Highpoint) {
   this.wait(1000, function (Highpoint) {
     var ltc = this.evaluate(domMunipulations.getValue);
-
     this.echo('this is hit');
     this.echo(ltc);
-
     var ltcPrice = 0;
     this.checkLTCHighpoint(ltcPrice);
   });
 
   return true;
-};
-
-casper.buyorSell = function (ltcPrice, readytoBuy) {
-  if (customizedVariables.readytoBuy === true) {
-    this.checktoBuy(ltcPrice, customizedVariables.Highpoint);
-  } else {
-    this.sellLTC();
-  }
 };
 
 // function to check values
@@ -66,8 +55,14 @@ casper.checkLTCHighpoint = function (ltcPrice) {
   this.buyorSell();
 };
 
+casper.buyorSell = function (ltcPrice, readytoBuy) {
+  if (customizedVariables.readytoBuy === true) {
+    this.checktoBuy(ltcPrice, customizedVariables.Highpoint);
+  } else {
+    this.sellLTC();
+  }
+};
 
-// Function to trigger buying
 casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
   var percentChange = 1 - customizedVariables.priceDrop;
   if (customizedVariables.Highpoint * percentChange >= ltcPrice) {
@@ -75,6 +70,7 @@ casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
     casper.buyLTC();
   }
 };
+
 // Function to buy
 casper.buyLTC = function () {
   // fill in the form
@@ -87,7 +83,5 @@ casper.sellLTC = function () {
   // fill out form currentTime
   this.echo('would be selling LTC at this point');
 };
-
-
 
 casper.run();
