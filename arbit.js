@@ -43,6 +43,11 @@ var domMunipulations = {
 
 casper.start('https://btc-e.com/exchange/ltc_btc'); //+++ change the url
 
+casper.on('complete.error', function(err) {
+    this.die("Complete callback has failed: " + err);
+});
+
+
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
     this.waitFor(function check() {
@@ -55,11 +60,11 @@ casper.then(function (currentTime) {
 casper.grabLTCBuyValue = function (Highpoint) {
   this.wait(1000, function (Highpoint) {
     customizedVariables.ltcPrice = this.evaluate(domMunipulations.grabLTCBuyValue);
-    this.checkLTCHighpoint(ltcPrice);
+    this.checkLTCHighpoint(customizedVariables.ltcPrice );
   });
   return true;
 };
-f
+
 // function to check values
 casper.checkLTCHighpoint = function (ltcPrice) {
   if (customizedVariables.ltcPrice > customizedVariables.Highpoint) {
