@@ -96,20 +96,6 @@ casper.sellLTC = function () {
   this.echo('would be selling LTC at this point');
 };
 casper.run();
-//Flow of Application
-//Specify Casperjs details
-//Start application
-//check price
-// check whether to buy or sell
-//Check if its a highpoint
-// Check whether its smart to buy
-// Fill in Form to buy
-//Check whether its smart to sell
-// Fill in Form to sell
-//Issues:
-//Cannot Fill out form to buy
-//Wait timeout is still causing issues
-//
 
 // -Outline Problems for Tenor
 // -Get checktosell setup
