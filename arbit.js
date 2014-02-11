@@ -43,26 +43,28 @@ var domMunipulations = {
 
 casper.start('https://btc-e.com/exchange/ltc_btc'); //+++ change the url
 
+casper.on('complete.error', function(err) {
+    this.die("Complete callback has failed: " + err);
+});
+
+
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
     this.waitFor(function check() {
-      // return this.grabLTCBuyValue();
-      return this.buyLTC();
+      return this.grabLTCBuyValue();
     });
   }
 });
 
 // functions to grab value
-casper.grabLTCValue = function (Highpoint) {
-  this.wait(2000, function (Highpoint) {
+casper.grabLTCBuyValue = function (Highpoint) {
+  this.wait(1000, function (Highpoint) {
     customizedVariables.ltcPrice = this.evaluate(domMunipulations.grabLTCBuyValue);
-    this.echo(customizedVariables.ltcPrice);
-    var ltcPrice = 0;
-    this.checkLTCHighpoint(ltcPrice);
+    this.checkLTCHighpoint(customizedVariables.ltcPrice );
   });
   return true;
 };
-f
+
 // function to check values
 casper.checkLTCHighpoint = function (ltcPrice) {
   if (customizedVariables.ltcPrice > customizedVariables.Highpoint) {
@@ -76,7 +78,7 @@ casper.buyorSell = function (ltcPrice, readytoBuy) {
   if (customizedVariables.readytoBuy === true) {
     this.checktoBuy(customizedVariables.ltcPrice, customizedVariables.Highpoint);
   } else {
-    this.sellLTC();
+    this.checktoSell();
   }
 };
 
@@ -92,7 +94,6 @@ casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
 // Function to buy
 casper.buyLTC = function () {
   this.echo("buy function is hit")
-  //This evalaute only working sometimes in the current state
   var amountLtc = this.evaluate(domMunipulations.setAmount)
   var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
   var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
@@ -101,7 +102,7 @@ casper.buyLTC = function () {
 casper.checktoSell = function () {
   sellingPriceafterFees = (customizedVariables.buyingprice / .998) * 1.002
   if (customizedVariables.readytoBuy === false) {
-    if(customizedVariables.ltcPrice > customizedVariables.buyingprice ) {
+    if(customizedVariables.ltcPrice >  sellingPriceafterFees) {
       this.sellLTC();
     };
   }
