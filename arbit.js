@@ -1,5 +1,5 @@
 var casper = require('casper').create({
-  waitTimeout: 15000,
+  // waitTimeout: 15000,
   logLevel: "debug",
   verbose: true,
   pageSettings: {
@@ -24,10 +24,10 @@ var domMunipulations = {
     return $('.tabla2 tr td:nth-child(2) #b_btc').val(5)
   },
   clickCalculateButton: function() {
-    return $('a.button:first-child')[0]
+    return $('a.button:first-child')[0].click()
   },
   clickBuyButton: function () {
-    return $('a:contains("Buy LTC")')[0]
+    return $('a:contains("Buy LTC")')[0].click()
   }
 }
 
@@ -44,7 +44,7 @@ casper.then(function (currentTime) {
 
 // functions to grab value
 casper.grabLTCValue = function (Highpoint) {
-  this.wait(1000, function (Highpoint) {
+  this.wait(2000, function (Highpoint) {
     var ltc = this.evaluate(domMunipulations.getLTCValue);
     this.echo('this is hit');
     this.echo(ltc);
@@ -81,36 +81,11 @@ casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
 
 // Function to buy
 casper.buyLTC = function () {
-
+  this.echo("buy function is hit")
   //This evalaute only working sometimes in the current state
-  //Evaluate needs to be set to a variable
-  //Try doing the calculate button without the 0
-  //Trydoing the calculate button with this.click and a selector instead of a function
-  // also use a wait for
   var amountLtc = this.evaluate(domMunipulations.setAmount)
-  this.capture('attempt1.png', {
-        top: 100,
-        left: 100,
-        width: 500,
-        height: 1000
-    });
-  links = this.evaluate(function() {
-    return ("this part is working")
-    // this.click($('a:contains("Buy LTC")')[0])
-    // this.capture('attempt2.png', {
-    //     top: 100,
-    //     left: 100,
-    //     width: 500,
-    //     height: 400
-    // });
-  })
-  this.echo(links)
-  // var clickCalculate = this.evaluate(domMunipulations.clickCalculateButton)
-  // var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
-
-  // // this.wait(500, function (clickBuyButton) {
-  //     this.click(clickBuyButton)
-  // // });
+  var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
+  var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
 };
 
 
@@ -120,10 +95,7 @@ casper.sellLTC = function () {
   // fill out form currentTime
   this.echo('would be selling LTC at this point');
 };
-
 casper.run();
-
-
 //Flow of Application
 //Specify Casperjs details
 //Start application
@@ -136,3 +108,19 @@ casper.run();
 // Fill in Form to sell
 //Issues:
 //Cannot Fill out form to buy
+//Wait timeout is still causing issues
+//
+
+// -Outline Problems for Tenor
+// -Get checktosell setup
+// -Debugging Casperjs
+
+
+// Tenor
+// -Wait Timeout is causing issues why is that
+//   I. Think its something to do with my loop
+// -Cannot click out buy form for clicking button
+// -Why is my jquery not evaluating
+// -this.wait isnt working when I nest Functions
+// -Setup CSV file to export
+// -Setup Mock Trading
