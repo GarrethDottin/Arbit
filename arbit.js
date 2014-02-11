@@ -30,6 +30,14 @@ var domMunipulations = {
   },
   clickBuyButton: function () {
     return $('a:contains("Buy LTC")')[0].click()
+  },
+
+  setSellAmount: function() {
+    return $('#s_btc').val(5)
+  },
+
+  clickSellButton: function () {
+    $('a.button:nth-child(3)')[1].click()
   }
 }
 
@@ -101,8 +109,8 @@ casper.checktoSell = function () {
 
 // Function to sell
 casper.sellLTC = function () {
-  // fill out form currentTime
-  this.echo('would be selling LTC at this point');
+  var setSellAmount = this.evaluate(domMunipulations.setSellAmount)
+  var sellLtc = this.evaluate(domMunipulations.clickSellButton)
 };
 casper.run();
 
@@ -113,7 +121,6 @@ casper.run();
   // II. waitfor issue
   // III. What is the number in which we sell in relation to the buypoint whats the cushion considering
   // fees
-// Tenor
 //
 // -Wait Timeout is causing issues why is that
 //   I. Think its something to do with my loop
