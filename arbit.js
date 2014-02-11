@@ -13,11 +13,13 @@ var customizedVariables = {
   timer: 5000,
   readytoBuy: true,
   priceDrop: .1,
-  aggregatedHighpoints: []
+  aggregatedHighpoints: [],
+  ltcPrice : null,
+  buyingprice: null,
 }
 
 var domMunipulations = {
-  getLTCValue: function () {
+  grabLTCBuyValue: function () {
     return $('.table:first-child .order:nth-child(2) td:first-child')[0].innerHTML;
   },
   setAmount: function() {
@@ -28,6 +30,14 @@ var domMunipulations = {
   },
   clickBuyButton: function () {
     return $('a:contains("Buy LTC")')[0].click()
+  },
+
+  setSellAmount: function() {
+    return $('#s_btc').val(5)
+  },
+
+  clickSellButton: function () {
+    $('a.button:nth-child(3)')[1].click()
   }
 }
 
@@ -36,7 +46,7 @@ casper.start('https://btc-e.com/exchange/ltc_btc'); //+++ change the url
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
     this.waitFor(function check() {
-      // return this.grabLTCValue();
+      // return this.grabLTCBuyValue();
       return this.buyLTC();
     });
   }
@@ -45,19 +55,18 @@ casper.then(function (currentTime) {
 // functions to grab value
 casper.grabLTCValue = function (Highpoint) {
   this.wait(2000, function (Highpoint) {
-    var ltc = this.evaluate(domMunipulations.getLTCValue);
-    this.echo('this is hit');
-    this.echo(ltc);
+    customizedVariables.ltcPrice = this.evaluate(domMunipulations.grabLTCBuyValue);
+    this.echo(customizedVariables.ltcPrice);
     var ltcPrice = 0;
     this.checkLTCHighpoint(ltcPrice);
   });
   return true;
 };
-
+f
 // function to check values
 casper.checkLTCHighpoint = function (ltcPrice) {
-  if (ltcPrice > customizedVariables.Highpoint) {
-    customizedVariables.Highpoint = ltcPrice;
+  if (customizedVariables.ltcPrice > customizedVariables.Highpoint) {
+    customizedVariables.Highpoint = customizedVariables.ltcPrice;
     customizedVariables.aggregatedHighpoints.push(customizedVariables.Highpoint);
   }
   this.buyorSell();
@@ -65,7 +74,7 @@ casper.checkLTCHighpoint = function (ltcPrice) {
 
 casper.buyorSell = function (ltcPrice, readytoBuy) {
   if (customizedVariables.readytoBuy === true) {
-    this.checktoBuy(ltcPrice, customizedVariables.Highpoint);
+    this.checktoBuy(customizedVariables.ltcPrice, customizedVariables.Highpoint);
   } else {
     this.sellLTC();
   }
@@ -73,8 +82,9 @@ casper.buyorSell = function (ltcPrice, readytoBuy) {
 
 casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
   var percentChange = 1 - customizedVariables.priceDrop;
-  if (customizedVariables.Highpoint * percentChange >= ltcPrice) {
+  if (customizedVariables.Highpoint * percentChange >= customizedVariables.ltcPrice) {
     customizedVariables.readytoBuy = false;
+    customizedVariables.buyingprice = customizedVariables.ltcPrice;
     casper.buyLTC();
   }
 };
@@ -88,23 +98,33 @@ casper.buyLTC = function () {
   var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
 };
 
-
+casper.checktoSell = function () {
+  sellingPriceafterFees = (customizedVariables.buyingprice / .998) * 1.002
+  if (customizedVariables.readytoBuy === false) {
+    if(customizedVariables.ltcPrice > customizedVariables.buyingprice ) {
+      this.sellLTC();
+    };
+  }
+}
 
 // Function to sell
 casper.sellLTC = function () {
-  // fill out form currentTime
-  this.echo('would be selling LTC at this point');
+  var setSellAmount = this.evaluate(domMunipulations.setSellAmount)
+  var sellLtc = this.evaluate(domMunipulations.clickSellButton)
 };
 casper.run();
 
-// -Outline Problems for Tenor
-// -Get checktosell setup
-// -Debugging Casperjs
 
 
-// Tenor
+//Issues:
+  // I. Jquery implementation
+  // II. waitfor issue
+  // III. What is the number in which we sell in relation to the buypoint whats the cushion considering
+  // fees
+//
 // -Wait Timeout is causing issues why is that
 //   I. Think its something to do with my loop
+//    II. Why does my wait need a return true
 // -Cannot click out buy form for clicking button
 // -Why is my jquery not evaluating
 // -this.wait isnt working when I nest Functions
