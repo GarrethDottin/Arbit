@@ -1,11 +1,11 @@
 var casper = require('casper').create({
-  // waitTimeout: 15000,
+  waitTimeout: 15000,
   logLevel: "debug",
   verbose: true,
   pageSettings: {
     userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.10 (KHTML, like Gecko) Chrome/23.0.1262.0 Safari/537.10',
-  },
-  clientScripts: ['jquery-1.11.0.min.js']
+  }
+  //, clientScripts: ['jquery-1.11.0.min.js']
 });
 var customizedVariables = {
   Highpoint: null,
@@ -26,10 +26,11 @@ var domMunipulations = {
     return $('.tabla2 tr td:nth-child(2) #b_btc').val(5)
   },
   clickCalculateButton: function() {
-    return $('a.button:first-child')[0].click()
+    return ex_calculate('buy', 10);
   },
+
   clickBuyButton: function () {
-    return $('a:contains("Buy LTC")')[0].click()
+    return ex_trade('buy', 10);
   },
 
   setSellAmount: function() {
@@ -37,7 +38,7 @@ var domMunipulations = {
   },
 
   clickSellButton: function () {
-    $('a.button:nth-child(3)')[1].click()
+    return ex_trade('sell', 10);
   }
 }
 
@@ -51,14 +52,15 @@ casper.on('complete.error', function(err) {
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
     this.waitFor(function check() {
-      return this.grabLTCBuyValue();
+      // return this.grabLTCBuyValue();
+      return this.buyLTC();
     });
   }
 });
 
 // functions to grab value
 casper.grabLTCBuyValue = function (Highpoint) {
-  this.wait(1000, function (Highpoint) {
+  this.wait(10000, function (Highpoint) {
     customizedVariables.ltcPrice = this.evaluate(domMunipulations.grabLTCBuyValue);
     this.checkLTCHighpoint(customizedVariables.ltcPrice );
   });
@@ -96,7 +98,20 @@ casper.buyLTC = function () {
   this.echo("buy function is hit")
   var amountLtc = this.evaluate(domMunipulations.setAmount)
   var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
-  var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
+// var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
+  this.wait(2000, function() {
+    this.capture("attempt3.png",  {
+      top: 100,
+      left: 100,
+      width: 500,
+      height: 1000
+    })
+    this.die()
+  });
+    return true
+
+  // var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
+  // var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
 };
 
 casper.checktoSell = function () {
@@ -116,13 +131,18 @@ casper.sellLTC = function () {
 casper.run();
 
 
+// Mock Trading
+// -Record the point we bought in a hash  with a timestamp
+// -
+// -
+
 
 //Issues:
   // I. Jquery implementation
   // II. waitfor issue
 //    A.  Think its something to do with my loop
 //    B. Why does my wait need a return true
-// -Cannot click out buy form for clicking button
+// -Cannot click on buy button
 // -Why is my jquery not evaluating
 // -this.wait isnt working when I nest Functions
 // -Setup CSV file to export
