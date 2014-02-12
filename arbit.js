@@ -5,7 +5,6 @@ var casper = require('casper').create({
   pageSettings: {
     userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.10 (KHTML, like Gecko) Chrome/23.0.1262.0 Safari/537.10',
   }
-  //, clientScripts: ['jquery-1.11.0.min.js']
 });
 var customizedVariables = {
   Highpoint: null,
@@ -16,6 +15,7 @@ var customizedVariables = {
   aggregatedHighpoints: [],
   ltcPrice : null,
   buyingprice: null,
+  aggregatedBuyingpoints: {}
 }
 
 var domMunipulations = {
@@ -63,8 +63,7 @@ casper.then(function () {
   var Username = this.evaluate(domMunipulations.Username)
   var password = this.evaluate(domMunipulations.password)
   var login = this.evaluate(domMunipulations.login)
-  })
-});
+})
 
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
@@ -113,18 +112,17 @@ casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
   }
 };
 
+
+casper.simulateBuy = function () {
+  var Today = new Date();
+  customizedVariables.aggregatedBuyingpoints[customizedVariables.buyingprice] = Today
+}
 // Function to buy
 casper.buyLTC = function () {
   this.echo("buy function is hit")
   var amountLtc = this.evaluate(domMunipulations.setAmount)
   var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
   this.wait(2000, function() {
-    this.capture("attempt3.png",  {
-      top: 100,
-      left: 100,
-      width: 500,
-      height: 1000
-    })
   var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
   });
     return true
@@ -147,7 +145,15 @@ casper.sellLTC = function () {
 casper.run();
 
 
+// var fs = require('fs');
 
+// var writeToFile = function() {
+//   var l = '';
+//   l += new Date(Date.now()).toISOString() + ',';
+//   l += customizedVariables.Highpoint;
+//   l += '\n';
+//   fs.write('log.csv', l, 'a');
+// };
 //Issues:
   // II. waitfor issue //issue with loading was because I was making a request every second
 //    B. Why does my wait need a return true // inorder to evalaute it needs a return true statement
