@@ -120,12 +120,8 @@ casper.run();
 //Issues:
   // I. Jquery implementation
   // II. waitfor issue
-  // III. What is the number in which we sell in relation to the buypoint whats the cushion considering
-  // fees
-//
-// -Wait Timeout is causing issues why is that
-//   I. Think its something to do with my loop
-//    II. Why does my wait need a return true
+//    A.  Think its something to do with my loop
+//    B. Why does my wait need a return true
 // -Cannot click out buy form for clicking button
 // -Why is my jquery not evaluating
 // -this.wait isnt working when I nest Functions
