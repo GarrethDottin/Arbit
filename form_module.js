@@ -10,27 +10,23 @@ casper.open('http://some.testserver.com/post.php', {
 });
 
 casper.then(function() {
-    this.echo('POSTED it.');
+    this.wait(4000, function () {
+      this.capture("attempt11.png", {
+        top: 0,
+        left: 300,
+        width: 1000,
+        height: 2000
+      })
+      this.echo('POSTED it.');
+    })
 });
 
-// casper.then(function() {
-//     this.evaluateOrDie(function() {
-//         return /message sent/.test(document.body.innerText);
-//     }, 'sending message failed');
-// });
 
 casper.run(function() {
     this.echo('message sent').exit();
 });
 
-///###fill in form and then click button///
-// casper.then(function() {
-//   this.fill('#login', {
-//     'email': 'garreth.dottin@gmail.com',
-//     'password': 'manchester1'
-//   }, true)
 
-// });
 
 // casper.then(function() {
 //   this.click('p a');

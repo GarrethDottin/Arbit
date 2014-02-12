@@ -2,15 +2,16 @@ Arbit Action List
 
 
 Release 1:
--Able to Fill out Buy Form
--Able to Fill out Sell Form
--Check to Sell
+-Able to Fill out Buy Form COMPLETE
+-Able to Fill out Sell Form COMPLETE
+-Check to Sell COMPLETE
 -Paper Trading
 
 Learning:
--Debugging casper
--Modular Code
+-Debugging casper COMPLETE
+-Modular Code COMPLETE
 
 Release 2:
 -CSV File outputting
--Data
+-Data aggregation
+-

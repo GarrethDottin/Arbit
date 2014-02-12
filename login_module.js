@@ -7,10 +7,19 @@ casper.open('http://some.testserver.com/post.php', {
   data: {
       email: 'garreth.dottin@gmail.com',
       password:  'manchester1'
+  },
+    headers: {
+        'Content-type': 'multipart/form-data'
   }
 });
 
 casper.run(function() {
+    this.capture("attempt12.png", {
+      top: 0,
+      left: 300,
+      width: 1000,
+      height: 2000
+    })
     this.echo('message sent').exit();
 });
 

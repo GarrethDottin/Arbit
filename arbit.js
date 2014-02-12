@@ -19,6 +19,17 @@ var customizedVariables = {
 }
 
 var domMunipulations = {
+  Username: function () {
+    return $('#email').val('')
+  },
+  password: function () {
+    return $('#password').val('')
+  },
+
+  login: function () {
+    return tryLogin()
+  },
+
   grabLTCBuyValue: function () {
     return $('.table:first-child .order:nth-child(2) td:first-child')[0].innerHTML;
   },
@@ -48,20 +59,26 @@ casper.on('complete.error', function(err) {
     this.die("Complete callback has failed: " + err);
 });
 
+casper.then(function () {
+  var Username = this.evaluate(domMunipulations.Username)
+  var password = this.evaluate(domMunipulations.password)
+  var login = this.evaluate(domMunipulations.login)
+  })
+});
 
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
     this.waitFor(function check() {
-      // return this.grabLTCBuyValue();
-      return this.buyLTC();
+      return this.grabLTCBuyValue();
     });
   }
 });
 
 // functions to grab value
 casper.grabLTCBuyValue = function (Highpoint) {
-  this.wait(10000, function (Highpoint) {
+  this.wait(5000, function (Highpoint) {
     customizedVariables.ltcPrice = this.evaluate(domMunipulations.grabLTCBuyValue);
+    this.echo(customizedVariables.ltcPrice)
     this.checkLTCHighpoint(customizedVariables.ltcPrice );
   });
   return true;
@@ -71,12 +88,14 @@ casper.grabLTCBuyValue = function (Highpoint) {
 casper.checkLTCHighpoint = function (ltcPrice) {
   if (customizedVariables.ltcPrice > customizedVariables.Highpoint) {
     customizedVariables.Highpoint = customizedVariables.ltcPrice;
+    this.echo("Highpoint" + customizedVariables.Highpoint)
     customizedVariables.aggregatedHighpoints.push(customizedVariables.Highpoint);
   }
   this.buyorSell();
 };
 
 casper.buyorSell = function (ltcPrice, readytoBuy) {
+  this.echo("this is hit: buyorSell")
   if (customizedVariables.readytoBuy === true) {
     this.checktoBuy(customizedVariables.ltcPrice, customizedVariables.Highpoint);
   } else {
@@ -85,6 +104,7 @@ casper.buyorSell = function (ltcPrice, readytoBuy) {
 };
 
 casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
+  this.echo("this is hit: checktoBuy")
   var percentChange = 1 - customizedVariables.priceDrop;
   if (customizedVariables.Highpoint * percentChange >= customizedVariables.ltcPrice) {
     customizedVariables.readytoBuy = false;
@@ -98,7 +118,6 @@ casper.buyLTC = function () {
   this.echo("buy function is hit")
   var amountLtc = this.evaluate(domMunipulations.setAmount)
   var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
-// var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
   this.wait(2000, function() {
     this.capture("attempt3.png",  {
       top: 100,
@@ -106,12 +125,9 @@ casper.buyLTC = function () {
       width: 500,
       height: 1000
     })
-    this.die()
+  var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
   });
     return true
-
-  // var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
-  // var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
 };
 
 casper.checktoSell = function () {
@@ -131,19 +147,12 @@ casper.sellLTC = function () {
 casper.run();
 
 
-// Mock Trading
-// -Record the point we bought in a hash  with a timestamp
-// -
-// -
-
 
 //Issues:
-  // I. Jquery implementation
-  // II. waitfor issue
-//    A.  Think its something to do with my loop
-//    B. Why does my wait need a return true
-// -Cannot click on buy button
+  // II. waitfor issue //issue with loading was because I was making a request every second
+//    B. Why does my wait need a return true // inorder to evalaute it needs a return true statement
+
+// -Cannot click on buy button //change the selector to the actual function
 // -Why is my jquery not evaluating
-// -this.wait isnt working when I nest Functions
 // -Setup CSV file to export
 // -Setup Mock Trading
