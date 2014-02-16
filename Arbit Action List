@@ -13,5 +13,14 @@ Learning:
 
 Release 2:
 -CSV File outputting
--Data aggregation
+-Improve Data aggregation
 -
+
+Steps: [correct buy sell value, email marc ]
+1. Input login information
+2. Run through Paper Trading
+3. Fix variable names
+  I. Test with Tak
+What needs to be Tested:
+1. Is the array of Similuated buy and sell working
+2. Does the system work once through?
