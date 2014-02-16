@@ -1,11 +1,10 @@
 var casper = require('casper').create({
-  // waitTimeout: 15000,
+  waitTimeout: 15000,
   logLevel: "debug",
   verbose: true,
   pageSettings: {
     userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.10 (KHTML, like Gecko) Chrome/23.0.1262.0 Safari/537.10',
-  },
-  clientScripts: ['jquery-1.11.0.min.js']
+  }
 });
 var customizedVariables = {
   Highpoint: null,
@@ -16,30 +15,46 @@ var customizedVariables = {
   aggregatedHighpoints: [],
   ltcPrice : null,
   buyingprice: null,
+  aggregatedBuyingpoints: {},
+  sellingPriceafterFees: null,
+  buySellvalues: {},
 }
 
 var domMunipulations = {
+  Username: function () {
+    return $('#email').val('p:R3@ch@M1ll10n')
+  },
+  password: function () {
+    return $('#password').val('p:R3@ch@B1ll10n')
+  },
+
+  login: function () {
+    return tryLogin()
+  },
+
   grabLTCBuyValue: function () {
     return $('.table:first-child .order:nth-child(2) td:first-child')[0].innerHTML;
   },
   setAmount: function() {
-    return $('.tabla2 tr td:nth-child(2) #b_btc').val(5)
+    return $('.tabla2 tr td:nth-child(2) #b_btc').val(2)
   },
   clickCalculateButton: function() {
-    return $('a.button:first-child')[0].click()
+    return ex_calculate('buy', 10);
   },
+
   clickBuyButton: function () {
-    return $('a:contains("Buy LTC")')[0].click()
+    return ex_trade('buy', 10);
   },
 
   setSellAmount: function() {
-    return $('#s_btc').val(5)
+    return $('#s_btc').val(2)
   },
 
   clickSellButton: function () {
-    $('a.button:nth-child(3)')[1].click()
+    return ex_trade('sell', 10);
   }
 }
+
 
 casper.start('https://btc-e.com/exchange/ltc_btc'); //+++ change the url
 
@@ -47,6 +62,11 @@ casper.on('complete.error', function(err) {
     this.die("Complete callback has failed: " + err);
 });
 
+casper.then(function () {
+  var Username = this.evaluate(domMunipulations.Username)
+  var password = this.evaluate(domMunipulations.password)
+  var login = this.evaluate(domMunipulations.login)
+})
 
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
@@ -58,8 +78,9 @@ casper.then(function (currentTime) {
 
 // functions to grab value
 casper.grabLTCBuyValue = function (Highpoint) {
-  this.wait(1000, function (Highpoint) {
+  this.wait(5000, function (Highpoint) {
     customizedVariables.ltcPrice = this.evaluate(domMunipulations.grabLTCBuyValue);
+    this.echo(customizedVariables.ltcPrice)
     this.checkLTCHighpoint(customizedVariables.ltcPrice );
   });
   return true;
@@ -69,12 +90,14 @@ casper.grabLTCBuyValue = function (Highpoint) {
 casper.checkLTCHighpoint = function (ltcPrice) {
   if (customizedVariables.ltcPrice > customizedVariables.Highpoint) {
     customizedVariables.Highpoint = customizedVariables.ltcPrice;
+    this.echo("Highpoint" + customizedVariables.Highpoint)
     customizedVariables.aggregatedHighpoints.push(customizedVariables.Highpoint);
   }
   this.buyorSell();
 };
 
 casper.buyorSell = function (ltcPrice, readytoBuy) {
+  this.echo("this is hit: buyorSell")
   if (customizedVariables.readytoBuy === true) {
     this.checktoBuy(customizedVariables.ltcPrice, customizedVariables.Highpoint);
   } else {
@@ -83,32 +106,53 @@ casper.buyorSell = function (ltcPrice, readytoBuy) {
 };
 
 casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
+  this.echo("this is hit: checktoBuy")
   var percentChange = 1 - customizedVariables.priceDrop;
   if (customizedVariables.Highpoint * percentChange >= customizedVariables.ltcPrice) {
     customizedVariables.readytoBuy = false;
     customizedVariables.buyingprice = customizedVariables.ltcPrice;
-    casper.buyLTC();
+    // casper.buyLTC();
+    this.echo("buying price" + customizedVariables.buyingprice)
+    this.echo("Simulated Buy")
+    this.simulateBuy();
   }
 };
 
+
+casper.simulateBuy = function () {
+  this.echo("simulate buy is hit")
+  var Today = new Date();
+  customizedVariables.aggregatedBuyingpoints[customizedVariables.buyingprice] = Today
+  this.echo("aggregatedBuyingpoints" + customizedVariables.aggregatedBuyingpoints)
+}
 // Function to buy
 casper.buyLTC = function () {
   this.echo("buy function is hit")
   var amountLtc = this.evaluate(domMunipulations.setAmount)
   var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
+  this.wait(2000, function() {
   var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
+  });
+    return true
 };
 
 casper.checktoSell = function () {
-  sellingPriceafterFees = (customizedVariables.buyingprice / .998) * 1.002
+  customizedVariables.sellingPriceafterFees = (customizedVariables.buyingprice / .998) * 1.002
   if (customizedVariables.readytoBuy === false) {
     if(customizedVariables.ltcPrice >  sellingPriceafterFees) {
-      this.sellLTC();
+      // this.sellLTC();
+      this.echo("Simulated Sell")
+      this.simulateSell();
     };
   }
 }
 
-// Function to sell
+casper.simulateSell = function () {
+ customizedVariables.buySellvalues[customizedVariables.buyingprice] = customizedVariables.sellingPriceafterFees
+ this.echo(customizedVariables.buySellvalues)
+
+}
+
 casper.sellLTC = function () {
   var setSellAmount = this.evaluate(domMunipulations.setSellAmount)
   var sellLtc = this.evaluate(domMunipulations.clickSellButton)
@@ -116,14 +160,18 @@ casper.sellLTC = function () {
 casper.run();
 
 
+// var fs = require('fs');
 
+// var writeToFile = function() {
+//   var l = '';
+//   l += new Date(Date.now()).toISOString() + ',';
+//   l += customizedVariables.Highpoint;
+//   l += '\n';
+//   fs.write('log.csv', l, 'a');
+// };
 //Issues:
-  // I. Jquery implementation
-  // II. waitfor issue
-//    A.  Think its something to do with my loop
-//    B. Why does my wait need a return true
-// -Cannot click out buy form for clicking button
-// -Why is my jquery not evaluating
-// -this.wait isnt working when I nest Functions
-// -Setup CSV file to export
-// -Setup Mock Trading
+  // II. waitfor issue //issue with loading was because I was making a request every second
+//    B. Why does my wait need a return true // inorder to evalaute it needs a return true statement
+
+// -Cannot click on buy button //change the selector to the actual function
+
