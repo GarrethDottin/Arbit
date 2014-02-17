@@ -31,9 +31,11 @@ var domMunipulations = {
   login: function () {
     return tryLogin()
   },
-
-  grabLTCBuyValue: function () {
-    return $('.table:first-child .order:nth-child(2) td:first-child')[0].innerHTML;
+  checkLTCAmount: function (num) {
+    return $('.table:first-child .order:nth-child(' + num + ') td:nth-child(2)')[0].innerHTML;
+  },
+  grabLTCBuyValue: function (num) {
+    return $('#orders_1 .table:first-child .order:nth-child(' + num + ') td')[0].innerHTML
   },
   setAmount: function() {
     return $('.tabla2 tr td:nth-child(2) #b_btc').val(2)
@@ -62,24 +64,36 @@ casper.on('complete.error', function(err) {
     this.die("Complete callback has failed: " + err);
 });
 
-casper.then(function () {
-  var Username = this.evaluate(domMunipulations.Username)
-  var password = this.evaluate(domMunipulations.password)
-  var login = this.evaluate(domMunipulations.login)
-})
+// casper.then(function () {
+//   var Username = this.evaluate(domMunipulations.Username)
+//   var password = this.evaluate(domMunipulations.password)
+//   var login = this.evaluate(domMunipulations.login)
+// })
 
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
     this.waitFor(function check() {
-      return this.grabLTCBuyValue();
+      // return this.grabLTCBuyValue();
+      return this.checkLTCAmount();
     });
   }
-});
-
+})
+  casper.checkLTCAmount = function () {
+    var ltc = this.evaluate(domMunipulations.checkLTCAmount, 2)
+    var counter = 2
+    var ltc = Number(ltc)
+    if (ltc > 2){
+      return this.grabLTCBuyValue(counter);
+    }
+    else {
+      counter++
+      var ltc = this.evaluate(domMunipulations.checkLTCAmount, counter)
+    }
+  }
 // functions to grab value
-casper.grabLTCBuyValue = function (Highpoint) {
-  this.wait(5000, function (Highpoint) {
-    customizedVariables.ltcPrice = this.evaluate(domMunipulations.grabLTCBuyValue);
+casper.grabLTCBuyValue = function (Highpoint, counter) {
+  this.wait(5000, function (Highpoint, counter) {
+    customizedVariables.ltcPrice = this.evaluate(domMunipulations.grabLTCBuyValue, counter);
     this.echo(customizedVariables.ltcPrice)
     this.checkLTCHighpoint(customizedVariables.ltcPrice );
   });
@@ -118,7 +132,6 @@ casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
   }
 };
 
-
 casper.simulateBuy = function () {
   this.echo("simulate buy is hit")
   var Today = new Date();
@@ -131,7 +144,7 @@ casper.buyLTC = function () {
   var amountLtc = this.evaluate(domMunipulations.setAmount)
   var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
   this.wait(2000, function() {
-  var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
+    var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
   });
     return true
 };
