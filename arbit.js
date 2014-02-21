@@ -75,7 +75,8 @@ casper.then(function () {
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
     this.waitFor(function check() {
-      return this.checkLTCAmount();
+      return writeToFile()
+      // return this.checkLTCAmount();
 
     });
   }
@@ -178,18 +179,16 @@ casper.sellLTC = function () {
 casper.run();
 
 
-// var fs = require('fs');
+var fs = require('fs');
 
-// var writeToFile = function() {
-//   var l = '';
-//   l += new Date(Date.now()).toISOString() + ',';
-//   l += customizedVariables.Highpoint;
-//   l += '\n';
-//   fs.write('log.csv', l, 'a');
-// };
+function writeToFile() {
+  var l = '';
+  l += new Date(Date.now()).toISOString() + ',';
+  l += customizedVariables.Highpoint;
+  l += '\n';
+  fs.write('log.csv', l, 'a');
+};
 //Issues:
 
-  // -Write to file at the end of a session
-  // Things to check
-  // -aggregatedHighpoints if its working or just overwriting previous point
-  // -
+  // -How can I measure the end of a session if the current time is always at the end
+  // -How can I get it to add to an existing excel file
