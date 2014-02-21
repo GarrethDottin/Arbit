@@ -17,10 +17,11 @@ Release 2:
 -
 
 Steps: [correct buy sell value, email marc ]
-1. Input login information
-2. Run through Paper Trading
-3. Fix variable names
+1. Get Real number for testing
+2. Fix variable names
   I. Test with Tak
+3. Change Input number so its not just the d
+
 What needs to be Tested:
-1. Is the array of Similuated buy and sell working
-2. Does the system work once through?
+1.  Does the system work once through?
+2. What are our goals for the month

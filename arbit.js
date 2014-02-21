@@ -7,33 +7,38 @@ var casper = require('casper').create({
   }
 });
 var customizedVariables = {
-  Highpoint: null,
+  Highpoint: 0,
   currentTime: 0,
-  timer: 5000,
+  timer: 5,
   readytoBuy: true,
   priceDrop: .1,
   aggregatedHighpoints: [],
-  ltcPrice : null,
-  buyingprice: null,
+  ltcPrice : 0,
+  buyingprice: 0,
   aggregatedBuyingpoints: {},
-  sellingPriceafterFees: null,
+  sellingPriceafterFees: 0,
   buySellvalues: {},
+  ltcbuyCounter: 2,
 }
 
 var domMunipulations = {
   Username: function () {
-    return $('#email').val('p:R3@ch@M1ll10n')
+    return $('#email').val('garreth.dottin@gmail.com')
+    // val('p:R3@ch@M1ll10n')
   },
   password: function () {
-    return $('#password').val('p:R3@ch@B1ll10n')
+    return $('#password').val('manchester1')
+    // p:R3@ch@B1ll10n
   },
 
   login: function () {
     return tryLogin()
   },
-
-  grabLTCBuyValue: function () {
-    return $('.table:first-child .order:nth-child(2) td:first-child')[0].innerHTML;
+  checkLTCAmount: function (num) {
+    return $('.table:first-child .order:nth-child(' + num + ') td:nth-child(2)')[0].innerHTML;
+  },
+  grabLTCBuyValue: function (num) {
+    return $('#orders_1 .table:first-child .order:nth-child(' + num + ') td')[0].innerHTML
   },
   setAmount: function() {
     return $('.tabla2 tr td:nth-child(2) #b_btc').val(2)
@@ -67,20 +72,36 @@ casper.then(function () {
   var password = this.evaluate(domMunipulations.password)
   var login = this.evaluate(domMunipulations.login)
 })
-
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
     this.waitFor(function check() {
-      return this.grabLTCBuyValue();
+      return writeToFile()
+      // return this.checkLTCAmount();
+
     });
   }
-});
+})
+  casper.checkLTCAmount = function () {
+    var ltc = this.evaluate(domMunipulations.checkLTCAmount, customizedVariables.ltcbuyCounter)
+    var ltc = Number(ltc)
+    return this.ltcGreaterthan2(ltc)
+  }
 
+  casper.ltcGreaterthan2 = function (ltc) {
+    if  (ltc > 100) {
+      return casper.grabLTCBuyValue(customizedVariables.ltcbuyCounter)
+    }
+    else {
+      customizedVariables.ltcbuyCounter++
+      var ltc = this.evaluate(domMunipulations.checkLTCAmount, customizedVariables.ltcbuyCounter)
+      ltc = Number(ltc)
+      this.ltcGreaterthan2(ltc)
+    }
+  }
 // functions to grab value
-casper.grabLTCBuyValue = function (Highpoint) {
-  this.wait(5000, function (Highpoint) {
-    customizedVariables.ltcPrice = this.evaluate(domMunipulations.grabLTCBuyValue);
-    this.echo(customizedVariables.ltcPrice)
+casper.grabLTCBuyValue = function (Highpoint, counter) {
+  this.wait(5000, function (Highpoint, counter) {
+    customizedVariables.ltcPrice = this.evaluate(domMunipulations.grabLTCBuyValue,    customizedVariables.ltcbuyCounter);
     this.checkLTCHighpoint(customizedVariables.ltcPrice );
   });
   return true;
@@ -97,7 +118,6 @@ casper.checkLTCHighpoint = function (ltcPrice) {
 };
 
 casper.buyorSell = function (ltcPrice, readytoBuy) {
-  this.echo("this is hit: buyorSell")
   if (customizedVariables.readytoBuy === true) {
     this.checktoBuy(customizedVariables.ltcPrice, customizedVariables.Highpoint);
   } else {
@@ -118,11 +138,10 @@ casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
   }
 };
 
-
 casper.simulateBuy = function () {
   this.echo("simulate buy is hit")
   var Today = new Date();
-  customizedVariables.aggregatedBuyingpoints[customizedVariables.buyingprice] = Today
+  customizedVariables.aggregatedBuyingpoints[Today] = customizedVariables.buyingprice
   this.echo("aggregatedBuyingpoints" + customizedVariables.aggregatedBuyingpoints)
 }
 // Function to buy
@@ -131,7 +150,7 @@ casper.buyLTC = function () {
   var amountLtc = this.evaluate(domMunipulations.setAmount)
   var caclulateTotal = this.evaluate(domMunipulations.clickCalculateButton)
   this.wait(2000, function() {
-  var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
+    var clickBuyButton = this.evaluate(domMunipulations.clickBuyButton)
   });
     return true
 };
@@ -139,7 +158,7 @@ casper.buyLTC = function () {
 casper.checktoSell = function () {
   customizedVariables.sellingPriceafterFees = (customizedVariables.buyingprice / .998) * 1.002
   if (customizedVariables.readytoBuy === false) {
-    if(customizedVariables.ltcPrice >  sellingPriceafterFees) {
+    if(customizedVariables.ltcPrice >  customizedVariables.sellingPriceafterFees) {
       // this.sellLTC();
       this.echo("Simulated Sell")
       this.simulateSell();
@@ -160,18 +179,16 @@ casper.sellLTC = function () {
 casper.run();
 
 
-// var fs = require('fs');
+var fs = require('fs');
 
-// var writeToFile = function() {
-//   var l = '';
-//   l += new Date(Date.now()).toISOString() + ',';
-//   l += customizedVariables.Highpoint;
-//   l += '\n';
-//   fs.write('log.csv', l, 'a');
-// };
+function writeToFile() {
+  var l = '';
+  l += new Date(Date.now()).toISOString() + ',';
+  l += customizedVariables.Highpoint;
+  l += '\n';
+  fs.write('log.csv', l, 'a');
+};
 //Issues:
-  // II. waitfor issue //issue with loading was because I was making a request every second
-//    B. Why does my wait need a return true // inorder to evalaute it needs a return true statement
 
-// -Cannot click on buy button //change the selector to the actual function
-
+  // -How can I measure the end of a session if the current time is always at the end
+  // -How can I get it to add to an existing excel file
