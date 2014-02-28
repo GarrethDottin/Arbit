@@ -198,9 +198,6 @@ function writeToFile() {
 
 
 // Issues:
-// Go over aggregatedBuyingPoints  output
-    // See if you can separate the key and the value
-    //research '/n'
 // Write out what you want to output
 
 // Secondary:
