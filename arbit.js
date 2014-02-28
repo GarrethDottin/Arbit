@@ -9,13 +9,13 @@ var casper = require('casper').create({
 var customizedVariables = {
   Highpoint: 0,
   currentTime: 0,
-  timer: 5,
+  timer: 3999,
   readytoBuy: true,
-  priceDrop: .1,
+  priceDrop: .01,
   aggregatedHighpoints: [],
   ltcPrice : 0,
   buyingprice: 0,
-  aggregatedBuyingpoints: {},
+  aggregatedBuyingpoints: {'G': 1, 'D' : 2},
   sellingPriceafterFees: 0,
   buySellvalues: {},
   ltcbuyCounter: 2,
@@ -23,12 +23,11 @@ var customizedVariables = {
 
 var domMunipulations = {
   Username: function () {
-    return $('#email').val('garreth.dottin@gmail.com')
+return $('#email').val('Arbitradings@gmail.com')
     // val('p:R3@ch@M1ll10n')
   },
   password: function () {
-    return $('#password').val('manchester1')
-    // p:R3@ch@B1ll10n
+  return $('#password').val('R3@ch@B1ll10n')
   },
 
   login: function () {
@@ -74,21 +73,28 @@ casper.then(function () {
 })
 casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
-    this.waitFor(function check() {
-      return writeToFile()
-      // return this.checkLTCAmount();
-
-    });
+    (function() {
+      var time = customizedVariables.currentTime;
+      this.echo("currentTime: " + time)
+      this.waitFor(function check() {
+        this.echo("currentTime in waitFor: "+ time);
+        if (time == 3999) {
+          writeToFile()
+        }
+        return this.checkLTCAmount();
+      });
+    }).call(this);
   }
 })
   casper.checkLTCAmount = function () {
     var ltc = this.evaluate(domMunipulations.checkLTCAmount, customizedVariables.ltcbuyCounter)
     var ltc = Number(ltc)
-    return this.ltcGreaterthan2(ltc)
+    this.ltcGreaterthan2(ltc)
+    return true;
   }
 
   casper.ltcGreaterthan2 = function (ltc) {
-    if  (ltc > 100) {
+    if  (ltc > 2) {
       return casper.grabLTCBuyValue(customizedVariables.ltcbuyCounter)
     }
     else {
@@ -156,7 +162,7 @@ casper.buyLTC = function () {
 };
 
 casper.checktoSell = function () {
-  customizedVariables.sellingPriceafterFees = (customizedVariables.buyingprice / .998) * 1.002
+  customizedVariables.sellingPriceafterFees = (customizedVariables.buyingprice * 1.002 / .998)
   if (customizedVariables.readytoBuy === false) {
     if(customizedVariables.ltcPrice >  customizedVariables.sellingPriceafterFees) {
       // this.sellLTC();
@@ -183,12 +189,21 @@ var fs = require('fs');
 
 function writeToFile() {
   var l = '';
-  l += new Date(Date.now()).toISOString() + ',';
-  l += customizedVariables.Highpoint;
+  for (index in customizedVariables.aggregatedBuyingpoints) {
+   l += index + ',' + customizedVariables.aggregatedBuyingpoints[index]
+  }
   l += '\n';
   fs.write('log.csv', l, 'a');
 };
-//Issues:
 
-  // -How can I measure the end of a session if the current time is always at the end
-  // -How can I get it to add to an existing excel file
+
+// Issues:
+// Go over aggregatedBuyingPoints  output
+    // See if you can separate the key and the value
+    //research '/n'
+// Write out what you want to output
+
+// Secondary:
+// -Create a separate function for ltc check
+// -Fix Simulated Sell
+// -Go Over Resistance bands strategy

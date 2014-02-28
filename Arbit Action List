@@ -12,9 +12,17 @@ Learning:
 -Modular Code COMPLETE
 
 Release 2:
--CSV File outputting
--Improve Data aggregation
--
+-CSV File outputting COMPLETE
+-Run through simulation of test
+-Write out plan for development COMPLETE
+
+
+-Analyze information that is sent to the document
+-Read information  from excel
+-Go over how we're setting our buying price
+-Go Over issue of Timer
+
+
 
 Steps: [correct buy sell value, email marc ]
 1. Get Real number for testing
