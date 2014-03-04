@@ -9,16 +9,17 @@ var casper = require('casper').create({
 var customizedVariables = {
   Highpoint: 0,
   currentTime: 0,
-  timer: 3999,
+  timer: 2,
   readytoBuy: true,
-  priceDrop: .01,
+  priceDrop: .0035,
   aggregatedHighpoints: [],
   ltcPrice : 0,
   buyingprice: 0,
-  aggregatedBuyingpoints: {'G': 1, 'D' : 2},
+  aggregatedBuyingpoints: {1: "Buying"},
   sellingPriceafterFees: 0,
-  buySellvalues: {},
+  buySellvalues: {2: "Selling"},
   ltcbuyCounter: 2,
+  Lowpoint: 0
 }
 
 var domMunipulations = {
@@ -75,10 +76,9 @@ casper.then(function (currentTime) {
   for (customizedVariables.currentTime = 0; customizedVariables.currentTime < customizedVariables.timer; customizedVariables.currentTime++) {
     (function() {
       var time = customizedVariables.currentTime;
-      this.echo("currentTime: " + time)
       this.waitFor(function check() {
         this.echo("currentTime in waitFor: "+ time);
-        if (time == 3999) {
+        if (time == 1) {
           writeToFile()
         }
         return this.checkLTCAmount();
@@ -115,6 +115,9 @@ casper.grabLTCBuyValue = function (Highpoint, counter) {
 
 // function to check values
 casper.checkLTCHighpoint = function (ltcPrice) {
+  if(customizedVariables.ltcPrice < customizedVariables.Lowpoint) {
+      customizedVariables.Lowpoint = customizedVariables.ltcPrice
+  }
   if (customizedVariables.ltcPrice > customizedVariables.Highpoint) {
     customizedVariables.Highpoint = customizedVariables.ltcPrice;
     this.echo("Highpoint" + customizedVariables.Highpoint)
@@ -134,7 +137,7 @@ casper.buyorSell = function (ltcPrice, readytoBuy) {
 casper.checktoBuy = function (ltcPrice,Highpoint, priceDrop) {
   this.echo("this is hit: checktoBuy")
   var percentChange = 1 - customizedVariables.priceDrop;
-  if (customizedVariables.Highpoint * percentChange >= customizedVariables.ltcPrice) {
+  if (customizedVariables.Highpoint * percentChange >= customizedVariables.ltcPrice &&customizedVariables.ltcPrice >= customizedVariables.Lowpoint * 1.002) {
     customizedVariables.readytoBuy = false;
     customizedVariables.buyingprice = customizedVariables.ltcPrice;
     // casper.buyLTC();
@@ -187,20 +190,34 @@ casper.run();
 
 var fs = require('fs');
 
+// function writeToFile() {
+//   console.log("WRITETOFILE IS HIT!!!!!!!!!!!")
+//   var l = '';
+//   for (index in customizedVariables.aggregatedBuyingpoints) {
+//     l += index + ',' + customizedVariables.aggregatedBuyingpoints[index] + ','
+//     l += '\n';
+//   }
+//   // for (index in customizedVariables.buySellvalues) {
+//   //   l += index + ',' + customizedVariables.buySellvalues[index] + ','
+//   //   l += '\n';
+//   //   console.log(l)
+//   //   }
+//   fs.write('log.csv', l, 'a');
+// };
 function writeToFile() {
-  var l = '';
-  for (index in customizedVariables.aggregatedBuyingpoints) {
-   l += index + ',' + customizedVariables.aggregatedBuyingpoints[index]
+  var lines = [];
+
+  for (date in customizedVariables.aggregatedBuyingpoints) {
+    lines.push(date + ',' + customizedVariables.aggregatedBuyingpoints[date]);
   }
-  l += '\n';
-  fs.write('log.csv', l, 'a');
+  console.log(lines)
+  var i = 0;
+  for (date in customizedVariables.buySellvalues) {
+    lines[i++] += ',' + date + ',' + customizedVariables.buySellvalues[date];
+  }
+  console.log(lines)
+  fs.write('/Users/apprentice/Google Drive/bot_log.csv', lines.join('\n') + '\n', 'a'); // 'a' for append-to-file
 };
 
-
 // Issues:
-// Write out what you want to output
-
-// Secondary:
-// -Create a separate function for ltc check
-// -Fix Simulated Sell
-// -Go Over Resistance bands strategy
+// -Figure out how to combine selling points to output
